@@ -1,0 +1,360 @@
+{
+	"info": {
+		"_postman_id": "51b549cf-1180-4351-bfbc-0475f6c627e0",
+		"name": "Numa-Rest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20883649"
+	},
+	"item": [
+		{
+			"name": "Get Empleados",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    ",
+							"});",
+							"pm.test(\"response should be okay to process\", function () {",
+							"    pm.response.to.not.be.error;",
+							"    pm.response.to.have.jsonBody(Array);",
+							"    pm.response.to.not.have.jsonBody(\"error\");",
+							"    pm.expect((Array(pm.response.size)) == jsonData.size)",
+							"    ",
+							"});",
+							"",
+							"pm.test(\"Prueba DTO\", function () {",
+							"    pm.expect(jsonData[0]).have.all.keys(\"nombre\", \"apellidos\",\"rol\",\"dni\");",
+							"    ",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/getEmpleados",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"getEmpleados"
+					]
+				},
+				"description": "Este endpoint devolverá información específica de todos los empleados:\n\n*   Nombre.\n*   Apellidos.\n*   Rol.\n*   DNI."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Empleado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Formacion del objeto\", function () {",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.expect(jsonData.nombre).to.be.a('string');",
+							"    pm.expect(jsonData.apellidos).to.be.a('string');",
+							"    pm.expect(jsonData.edad).to.be.a('number');",
+							"    pm.expect(jsonData.direccion).to.be.a('string');",
+							"    pm.expect(jsonData.dni).to.be.a('string');",
+							"    pm.expect(jsonData.salario).to.be.a('number');",
+							"    pm.expect(jsonData.rol).to.be.a('string');",
+							"",
+							"});",
+							"",
+							"",
+							"pm.test(\"Datos correctos del empleado 1\", function () {  ",
+							"    pm.expect(jsonData.nombre).to.eql(\"Sheree\");",
+							"    pm.expect(jsonData.apellidos).to.eql(\"Gayther\");",
+							"    pm.expect(jsonData.edad).to.eql(jsonData.edad);",
+							"    pm.expect(jsonData.direccion).to.eql(\"8153 Graceland Crossing\");",
+							"    pm.expect(jsonData.dni).to.eql(\"org.opensource.Stim\");",
+							"    pm.expect(jsonData.salario).to.eql(2131.45);",
+							"    pm.expect(jsonData.rol).to.eql(\"Electrician\");",
+							"",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/getEmpleado?id=1",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"getEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				},
+				"description": "Este endpoint recibirá como parámetro un id, y devolverá toda la información del empleado."
+			},
+			"response": []
+		},
+		{
+			"name": "Editar Empleado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var body = JSON.parse(request.data);",
+							"var jsonData = pm.response.json();",
+							"var localhost = pm.environment.get(\"localhost\");",
+							"",
+							"",
+							"// if(pm.response.code == 200){",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Comprobacion de datos del body\", function () {   ",
+							"    pm.expect(body.nombre).to.be.a('string');",
+							"    pm.expect(body.apellidos).to.be.a('string');",
+							"    pm.expect(body.edad).to.be.a('number');",
+							"    pm.expect(body.direccion).to.be.a('string');",
+							"    pm.expect(body.dni).to.be.a('string');",
+							"    pm.expect(body.salario).to.be.a('number');",
+							"    pm.expect(body.rol).to.be.a('string');",
+							"});",
+							"",
+							"// if((jsonData[0]).have.all.keys(\"nombre\")){",
+							"",
+							"pm.test(\"Comprobacion de datos de la respuesta con el body\", function () {   ",
+							"    pm.expect(jsonData.nombre).to.eql(body.nombre);",
+							"    pm.expect(jsonData.apellidos).to.eql(body.apellidos);",
+							"    pm.expect(jsonData.edad).to.eql(body.edad);",
+							"    pm.expect(jsonData.direccion).to.eql(body.direccion);",
+							"    pm.expect(jsonData.dni).to.eql(body.dni);",
+							"    pm.expect(jsonData.salario).to.eql(body.salario);",
+							"    pm.expect(jsonData.rol).to.eql(body.rol);",
+							"});",
+							"// }",
+							"",
+							"pm.test(\"Primero put luego get y comprobar\", function () {",
+							"    pm.sendRequest(localhost+':8080/getEmpleado?id='+pm.request.url.query.toObject().id, function (err, res) {",
+							"        pm.expect(err).to.not.be.ok;",
+							"        pm.expect(res).to.have.property('code', 200);",
+							"        pm.expect(res).to.have.property('status', 'OK');",
+							"        var jss = res.json();",
+							"        pm.expect(body.nombre).to.eql(jss.nombre);",
+							"        pm.expect(body.apellidos).to.eql(jss.apellidos);",
+							"        pm.expect(body.edad).to.eql(jss.edad);",
+							"        pm.expect(body.direccion).to.eql(jss.direccion);",
+							"        pm.expect(body.dni).to.eql(jss.dni);",
+							"        pm.expect(body.salario).to.eql(jss.salario);",
+							"        pm.expect(body.rol).to.eql(jss.rol);",
+							"    });",
+							"});",
+							"// }",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \n    \"nombre\": \"Sheree\",\n    \"apellidos\": \"Gayther\",\n    \"edad\": 60,\n    \"direccion\": \"8153 Graceland Crossing\",\n    \"dni\": \"org.opensource.Stim\",\n    \"salario\": 2131.45,\n    \"rol\": \"Electrician\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}:8080/putEmpleado?id=1",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"putEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Empleado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"var jsonData = pm.response.json();",
+							"var body = JSON.parse(request.data);",
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"});",
+							"",
+							"pm.test(\"Formacion del objeto\", function () {",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.expect(jsonData.nombre).to.be.a('string');",
+							"    pm.expect(jsonData.apellidos).to.be.a('string');",
+							"    pm.expect(jsonData.edad).to.be.a('number');",
+							"    pm.expect(jsonData.direccion).to.be.a('string');",
+							"    pm.expect(jsonData.dni).to.be.a('string');",
+							"    pm.expect(jsonData.salario).to.be.a('number');",
+							"    pm.expect(jsonData.rol).to.be.a('string');",
+							"",
+							"});",
+							"//probar despues de hacer post o put, hacer un get y comprobar",
+							"",
+							"",
+							"pm.test(\"Datos correctos del empleado 1\", function () {  ",
+							"    pm.expect(jsonData.nombre).to.eql(body.nombre);",
+							"    pm.expect(jsonData.apellidos).to.eql(body.apellidos);",
+							"    pm.expect(jsonData.edad).to.eql(body.edad);",
+							"    pm.expect(jsonData.direccion).to.eql(body.direccion);",
+							"    pm.expect(jsonData.dni).to.eql(body.dni);",
+							"    pm.expect(jsonData.salario).to.eql(body.salario);",
+							"    pm.expect(jsonData.rol).to.eql(body.rol);",
+							"",
+							"});",
+							"pm.test(\"Primero put luego get y comprobar\", function () {",
+							"    pm.sendRequest(localhost+':8080/getEmpleado?id='+jsonData.id, function (err, res) {",
+							"        pm.expect(err).to.not.be.ok;",
+							"        pm.expect(res).to.have.property('code', 200);",
+							"        pm.expect(res).to.have.property('status', 'OK');",
+							"        var jss = res.json();",
+							"        pm.expect(body.nombre).to.eql(jss.nombre);",
+							"        pm.expect(body.apellidos).to.eql(jss.apellidos);",
+							"        pm.expect(body.edad).to.eql(jss.edad);",
+							"        pm.expect(body.direccion).to.eql(jss.direccion);",
+							"        pm.expect(body.dni).to.eql(jss.dni);",
+							"        pm.expect(body.salario).to.eql(jss.salario);",
+							"        pm.expect(body.rol).to.eql(jss.rol);",
+							"    });",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nombre\": \"Roman\",\n    \"apellidos\": \"Gayther\",\n    \"edad\": 20,\n    \"direccion\": \"8153 Graceland Crossing\",\n    \"dni\": \"X66834843\",\n    \"salario\": 1700.05,\n    \"rol\": \"Electrician\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}:8080/postEmpleado",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"postEmpleado"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Empleado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Status code\", function () {",
+							"   pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+							"   console.log(request.url);",
+							"});",
+							"if (pm.response.code == 204){",
+							"pm.test(\"Empleado borrado\", function () {",
+							"    pm.response.to.not.have.error;",
+							"});",
+							"}",
+							"",
+							"pm.test(\"Primero delete luego get y comprobar que no existe\", function () {",
+							"    pm.sendRequest(localhost+':8080/getEmpleado?id='+pm.request.url.query.toObject().id, function (err, res) {",
+							"        pm.expect(err).to.not.be.ok;",
+							"        pm.expect(res).to.have.property('code', 404);",
+							"        pm.expect(res).to.have.property('status', 'Not Found');",
+							"    });",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/delEmpleado?id=16",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"delEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "16"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
