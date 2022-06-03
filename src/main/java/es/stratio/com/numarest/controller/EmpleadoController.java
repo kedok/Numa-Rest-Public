@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public class EmpleadoController {
     }
 
     @PostMapping("/postEmpleado")
-    public ResponseEntity<Empleado> newEmpleado(@RequestBody Empleado nuevoEmpleado) {
+    public ResponseEntity<Empleado> newEmpleado(@Valid @RequestBody Empleado nuevoEmpleado) {
         List<Empleado> todosEmpleados = empleados.findAll();
         if (todosEmpleados.stream().filter(empleado -> empleado.getDni().equals(nuevoEmpleado.getDni())).count() > 0) {
             throw new EmpleadoExistsException(nuevoEmpleado.getDni());

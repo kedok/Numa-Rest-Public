@@ -27,13 +27,29 @@
 							"});",
 							"",
 							"pm.test(\"Prueba DTO\", function () {",
-							"    pm.expect(jsonData[0]).have.all.keys(\"nombre\", \"apellidos\",\"rol\",\"dni\");",
-							"    ",
+							"    for(var i = 0; i<jsonData.length;i++){",
+							"        pm.expect(jsonData[i]).have.all.keys(\"nombre\", \"apellidos\",\"rol\",\"dni\");",
+							"    }    ",
 							"});",
 							"",
 							"",
 							"",
 							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/getEmpleados\");",
+							"    ",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -95,6 +111,22 @@
 						],
 						"type": "text/javascript"
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/getEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/getEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
 			],
 			"request": {
@@ -117,6 +149,191 @@
 					]
 				},
 				"description": "Este endpoint recibirá como parámetro un id, y devolverá toda la información del empleado."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Empleados Empty",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/getEmpleados\");",
+							"    ",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"var jsonData = pm.response.json();",
+							"//se envia un get para hacer el delete",
+							"",
+							"",
+							"pm.test(\"First delete all empleados\", function () {",
+							"    for(var i =0; i<jsonData.length+1;i++){",
+							"        const deleteRequest = {",
+							"        url: localhost+':8080/delEmpleado?id='+i,",
+							"        method: 'DELETE',",
+							"        header: {",
+							"            'Content-Type': 'application/json',",
+							"        }",
+							"        };",
+							"    pm.sendRequest(deleteRequest, function (err, res) {",
+							"        pm.expect(err).to.not.be.ok;",
+							"        pm.expect(res).to.have.property('code', 204);",
+							"        pm.expect(res).to.have.property('status', 'No Content');",
+							"    });",
+							"    }",
+							"});",
+							"",
+							"//no es sincrono y tardan en borrarse los empleados",
+							"pm.test(\"Test empty empleados\", function () {",
+							"    pm.sendRequest(localhost+':8080/getEmpleados', function (err, res) {",
+							"        pm.expect(err).to.not.be.ok;",
+							"        pm.expect(res).to.have.status(404);",
+							"        pm.expect(res).to.have.property('status', 'Not Found');",
+							"    });  ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/getEmpleados",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"getEmpleados"
+					]
+				},
+				"description": "First remove all empleados and then send the request to catch exception (not found)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Empleado not number",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/getEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/getEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/getEmpleado?id=hola",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"getEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "hola"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Empleado id out of bounds",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/getEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/getEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Id out of bounds\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/getEmpleado?id=200",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"getEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "200"
+						}
+					]
+				}
 			},
 			"response": []
 		},
@@ -181,6 +398,22 @@
 						],
 						"type": "text/javascript"
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/putEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/putEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
 			],
 			"request": {
@@ -208,6 +441,135 @@
 						{
 							"key": "id",
 							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Editar Empleado wrong id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"",
+							"pm.test(\"Wrong id\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/putEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/putEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \n    \"nombre\": \"Sheree\",\n    \"apellidos\": \"Gayther\",\n    \"edad\": 60,\n    \"direccion\": \"8153 Graceland Crossing\",\n    \"dni\": \"org.opensource.Stim\",\n    \"salario\": 2131.45,\n    \"rol\": \"Electrician\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}:8080/putEmpleado?id=99",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"putEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "99"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Editar Empleado id not number",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"",
+							"pm.test(\"Wrong id\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/putEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/putEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \n    \"nombre\": \"Sheree\",\n    \"apellidos\": \"Gayther\",\n    \"edad\": 60,\n    \"direccion\": \"8153 Graceland Crossing\",\n    \"dni\": \"org.opensource.Stim\",\n    \"salario\": 2131.45,\n    \"rol\": \"Electrician\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}:8080/putEmpleado?id=hola",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"putEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "hola"
 						}
 					]
 				}
@@ -273,6 +635,21 @@
 						],
 						"type": "text/javascript"
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/postEmpleado\");",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
 			],
 			"request": {
@@ -281,6 +658,121 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"nombre\": \"Roman\",\n    \"apellidos\": \"Gayther\",\n    \"edad\": 20,\n    \"direccion\": \"8153 Graceland Crossing\",\n    \"dni\": \"X66834843\",\n    \"salario\": 1700.05,\n    \"rol\": \"Electrician\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}:8080/postEmpleado",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"postEmpleado"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Empleado mandatory fields",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Bad request\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"   ",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/postEmpleado\");",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"apellidos\": \"Gayther\",\n    \"edad\": 20,\n    \"direccion\": \"8153 Graceland Crossing\",\n    \"salario\": 1700.05,\n    \"rol\": \"Electrician\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}:8080/postEmpleado",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"postEmpleado"
+					]
+				},
+				"description": "Name and DNI are mandatory fields."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Empleado that already exists",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/postEmpleado\");",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Bad request\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \n    \"nombre\": \"Sheree\",\n    \"apellidos\": \"Gayther\",\n    \"rol\": \"Electrician\",\n    \"dni\": \"org.opensource.Stim\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -310,7 +802,7 @@
 							"var localhost = pm.environment.get(\"localhost\");",
 							"pm.test(\"Status code\", function () {",
 							"   pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
-							"   console.log(request.url);",
+							"",
 							"});",
 							"if (pm.response.code == 204){",
 							"pm.test(\"Empleado borrado\", function () {",
@@ -332,6 +824,22 @@
 						],
 						"type": "text/javascript"
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/delEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/delEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
 			],
 			"request": {
@@ -350,6 +858,122 @@
 						{
 							"key": "id",
 							"value": "16"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Empleado id out of bounds",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Empleado not exist\", function () {",
+							"   pm.response.to.have.status(404);",
+							"",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/delEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/delEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/delEmpleado?id=99",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"delEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "99"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Empleado id not number",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Id not a number\", function () {",
+							"   pm.response.to.have.status(400);",
+							"",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var localhost = pm.environment.get(\"localhost\");",
+							"pm.test(\"Check url and query\", function () {",
+							"    pm.expect(localhost).to.eql(\"192.168.1.200\");",
+							"    pm.expect(pm.request.url.getRemote()).to.eql(\"{{localhost}}:8080\");",
+							"    pm.expect(pm.request.url.getPath()).to.eql(\"/delEmpleado\");",
+							"    pm.expect(pm.request.url.getPathWithQuery()).to.eql(\"/delEmpleado?id=\"+ pm.request.url.query.toObject().id);",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}:8080/delEmpleado?id=hola",
+					"host": [
+						"{{localhost}}"
+					],
+					"port": "8080",
+					"path": [
+						"delEmpleado"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "hola"
 						}
 					]
 				}

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 @NoArgsConstructor
@@ -17,6 +19,7 @@ public class Empleado {
     @GeneratedValue
     private Long id;
 
+    @NotEmpty(message = "The full name is required.")
     private String nombre;
 
     private String apellidos;
@@ -25,6 +28,7 @@ public class Empleado {
 
     private String direccion;
 
+    @NotBlank(message = "DNI is mandatory")
     private String dni;
 
     private double salario;
